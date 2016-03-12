@@ -16,6 +16,8 @@ public:
     void setup();
     void update();
     void draw();
+    void drawGrid();
+    void sendMotorCommand(unsigned char, unsigned char, bool, unsigned char, bool);
     
     void keyPressed(int key);
     void keyReleased(int key);
@@ -47,7 +49,7 @@ public:
     
     ofVec3f positionTrackingData [1000];
     
-    unsigned char MOTOR_CONTROL = 0x02;
+    unsigned char MOTOR_OPCODE = 0x02;
     
     
 };

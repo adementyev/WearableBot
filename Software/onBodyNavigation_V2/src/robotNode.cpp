@@ -138,9 +138,11 @@ void robotNode::visualizePosition() {
     ofDrawBitmapStringHighlight("  ID: " + ofToString(sensorID), currentXpos, currentYpos);
 }
 
-void robotNode::sendMotorCommand(unsigned char M1speed, bool M1direction,
-                                 unsigned char M2speed, bool M2direction) {
+//TODO Doesn't work, get "couldn't read from port: 9 Bad file descriptor"
+void robotNode::sendMotorCommand(unsigned char M1speed, unsigned char M1direction,unsigned char M2speed, unsigned char M2direction,ofSerial serial) {
     
+    unsigned char buf[12] = {0x02, M1speed, M2speed, M1direction,M2direction, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x00};
+    serial.writeBytes(&buf[0], 12);
 }
 
 

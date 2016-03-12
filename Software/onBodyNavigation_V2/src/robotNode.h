@@ -19,6 +19,7 @@ class robotNode : public ofBaseApp{
     
 public: // place public functions or variables declarations here
     
+
     // methods, equivalent to specific functions of your class objects
     void addData(int []);
     int getCurrentXpos();
@@ -30,7 +31,7 @@ public: // place public functions or variables declarations here
     void visualizePosition();
     void showDebugData();
     int  getID();
-    void sendMotorCommand(unsigned char, bool, unsigned char, bool);
+    void sendMotorCommand(unsigned char, unsigned char, unsigned char, unsigned char, ofSerial serial);
     
     
     // variables

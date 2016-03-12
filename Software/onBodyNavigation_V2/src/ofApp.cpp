@@ -58,7 +58,7 @@ void ofApp::setup(){
     serial.listDevices();
     vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
     int baud = 115200;
-    serial.setup("/dev/tty.usbmodem1d1141", baud); // mac osx example
+    serial.setup("/dev/tty.usbmodem1d1131", baud); // mac osx example
     
     
     float width     = ofGetWidth() * .12;
@@ -139,7 +139,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
+    drawGrid();
     AllRobots[1].visualizePosition();
     AllRobots[2].visualizePosition();
     
@@ -148,33 +148,50 @@ void ofApp::draw(){
     
 }
 
+void ofApp::drawGrid() {
+    int X_CELLS = 18;
+    int Y_CELLS = 26;
+    int CELL_SIZE = 25;
+    int X_START = 250;
+    int Y_START = 50;
+    for (int i=0; i<X_CELLS+1; i++) {
+        ofDrawLine(ofVec2f(X_START+CELL_SIZE*i, Y_START),
+                   ofVec2f(X_START+CELL_SIZE*i, Y_START+CELL_SIZE*Y_CELLS));
+        
+    ofDrawBitmapStringHighlight(ofToString(i+1), X_START+CELL_SIZE*i, Y_START);
+    }
+    
+    for (int i=0; i<Y_CELLS+1; i++) {
+        ofDrawLine(ofVec2f(X_START, Y_START+CELL_SIZE*i),
+                   ofVec2f(X_START+CELL_SIZE*X_CELLS, Y_START+CELL_SIZE*i));
+    
+        ofDrawBitmapStringHighlight(ofToString(i+1), X_START-CELL_SIZE, CELL_SIZE/2+Y_START+CELL_SIZE*i);
+    }
+    
+
+
+}
+
+void ofApp::sendMotorCommand(unsigned char robotID, unsigned char M1speed, bool M1direction,unsigned char M2speed, bool M2direction) {
+    
+    unsigned char buf[13] = {robotID, MOTOR_OPCODE, M1speed, M2speed, M1direction,M2direction, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x00};
+    serial.writeBytes(&buf[0], 13);
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     //FORWARD
     if (key == '1'){
-        unsigned char buf[12] = {0x02, 100, 100, 0x10, //130,30
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00};
-        serial.writeBytes(&buf[0], 12);
-        printf("Key sent");
     }
     
     //STOP
     if (key == '2'){
-        unsigned char buf[12] = {0x02, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00};
-        serial.writeBytes(&buf[0], 12);
-        printf("Key sent");
+
     }
     
     //LEFT
     if (key == '3'){
-        unsigned char buf[12] = {0x02, 254, 254, 0x00,
-            0x11, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00};
-        serial.writeBytes(&buf[0], 12);
-        printf("Key sent");
+
     }
     
     //RIGHT
@@ -187,12 +204,21 @@ void ofApp::keyPressed(int key){
     }
     
     if (key == '5'){
-        unsigned char buf[12] = {0x02, 100, 100, 0x11, //130,30
-            0x11, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00};
-        serial.writeBytes(&buf[0], 12);
-        printf("Key sent");
+        sendMotorCommand(2,200,1,100,1);
     }
+    
+    if (key == '6'){
+        sendMotorCommand(2,0,0,0,0);
+    }
+    
+    if (key == '7'){
+        sendMotorCommand(1,100,1,100,1);
+    }
+    
+    if (key == '8'){
+        sendMotorCommand(1,0,0,0,0);
+    }
+    
     
     if (key == '<'){
         leftEncoder = leftEncoder - 100;
@@ -226,7 +252,7 @@ void ofApp::keyPressed(int key){
     if (key == 'w'){
         left_motor = left_motor + 10;
         right_motor = right_motor + 10;
-        unsigned char buf[12] = {MOTOR_CONTROL, left_motor, right_motor, 0x00,0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        unsigned char buf[12] = {MOTOR_OPCODE, left_motor, right_motor, 0x00,0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         serial.writeBytes(&buf[0], 12);
         printf("Key sent");
     }
@@ -236,7 +262,7 @@ void ofApp::keyPressed(int key){
         left_motor = left_motor - 10;
         right_motor = right_motor - 10;
         
-        unsigned char buf[12] = {MOTOR_CONTROL, left_motor, right_motor, 0x00,
+        unsigned char buf[12] = {MOTOR_OPCODE, left_motor, right_motor, 0x00,
             0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
         serial.writeBytes(&buf[0], 12);
@@ -247,7 +273,7 @@ void ofApp::keyPressed(int key){
     if (key == 'a'){
         left_motor = left_motor - 10;
         right_motor = right_motor + 10;
-        unsigned char buf[12] = {MOTOR_CONTROL, left_motor, right_motor, 0x00,
+        unsigned char buf[12] = {MOTOR_OPCODE, left_motor, right_motor, 0x00,
             0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
         serial.writeBytes(&buf[0], 12);
@@ -258,7 +284,7 @@ void ofApp::keyPressed(int key){
     if (key == 'd'){
         left_motor = left_motor + 10;
         right_motor = right_motor - 10;
-        unsigned char buf[12] = {MOTOR_CONTROL, left_motor, right_motor, 0x00,
+        unsigned char buf[12] = {MOTOR_OPCODE, left_motor, right_motor, 0x00,
             0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
         serial.writeBytes(&buf[0], 12);
@@ -268,6 +294,8 @@ void ofApp::keyPressed(int key){
     
     
 }
+
+
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
